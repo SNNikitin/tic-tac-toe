@@ -37,13 +37,13 @@ public class RNDatabase: NSObject {
         }
     }
 
-    @objc func saveGame(_ playerId: Double, won: Double, difficulty: String, duration: Double, playedAt: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    @objc func saveGame(_ playerId: Double, won: Bool, difficulty: String, duration: Double, playedAt: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
         Task {
             guard let database = await holder.get() else {
                 resolve(["error": "Database unavailable"])
                 return
             }
-            await database.saveGame(playerId: UInt(playerId), won: Int(won), difficulty: difficulty, duration: Int(duration), playedAt: playedAt)
+            await database.saveGame(playerId: UInt(playerId), won: won, difficulty: difficulty, duration: Int(duration), playedAt: playedAt)
             resolve([:])
         }
     }

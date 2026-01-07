@@ -42,7 +42,7 @@ public actor GameDatabase {
         run("""
             CREATE TABLE IF NOT EXISTS games (
                 player_id INTEGER NOT NULL,
-                won INTEGER NOT NULL,
+                won BOOLEAN NOT NULL,
                 difficulty TEXT NOT NULL,
                 duration INTEGER NOT NULL,
                 played_at TEXT NOT NULL
@@ -74,11 +74,11 @@ public actor GameDatabase {
         return player
     }
 
-    public func saveGame(playerId: UInt, won: Int, difficulty: String, duration: Int, playedAt: String) {
+    public func saveGame(playerId: UInt, won: Bool, difficulty: String, duration: Int, playedAt: String) {
         run("INSERT INTO games (player_id, won, difficulty, duration, played_at) VALUES (?, ?, ?, ?, ?)",
-            params: [playerId, won, difficulty, duration, playedAt])
+            params: [playerId, won ? 1 : 0, difficulty, duration, playedAt])
 
-        if won == 1 {
+        if won {
             run("UPDATE streaks SET wins_count = wins_count + 1 WHERE player_id = ? AND ended_at IS NULL",
                 params: [playerId])
             run("""
@@ -110,7 +110,7 @@ public actor GameDatabase {
         fetch("""
             SELECT p.name, best, total, wins
             FROM (
-                SELECT s.player_id, MAX(s.wins_count) as best, COUNT(g.won) as total, SUM(g.won) as wins
+                SELECT s.player_id, MAX(s.wins_count) as best, COUNT(*) as total, SUM(g.won) as wins
                 FROM streaks s LEFT JOIN games g ON g.player_id = s.player_id
                 GROUP BY s.player_id
             ) sub JOIN players p ON p.id = sub.player_id
