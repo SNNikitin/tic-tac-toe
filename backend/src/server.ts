@@ -13,8 +13,13 @@ const {
 } = process.env;
 
 const port = Number(_port);
-const secure = true;
+const secure = port === 465;
 const auth = { user, pass };
+
+if (!host || !port || !user || !pass) {
+  console.error('Missing environment variables:', { host, port, user, pass });
+  process.exit(1);
+}
 
 const app = express();
 
@@ -38,7 +43,7 @@ app.post('/api/games', async (request, response) => {
   const id = Date.now().toString();
   let emailSent = false;
 
-  const durationStr = duration !== undefined && duration !== null ? `${Math.round(duration / 1000)}s` : '';
+  const durationStr = Number(duration) > 0 ? `${Math.round(duration / 1000)}s` : '';
   const streakStr = streak ? `Current streak: ${streak} wins` : '';
   const parsedDate = playedAt ? new Date(playedAt) : null;
   const date = parsedDate && !isNaN(parsedDate.getTime()) ? parsedDate : new Date();
@@ -52,10 +57,10 @@ app.post('/api/games', async (request, response) => {
 
   try {
     await transporter.sendMail({
-      from: user || 'tic-tac-toe@snnikitin.work',
+      from: user,
       to: email,
       subject: `Tic-Tac-Toe: ${won ? 'Win' : 'Loss'}`,
-      text: `Hi ${playerName}!\n\nYou ${
+      text: `Hi ${playerName}!\nYou ${
         won ? 'won' : 'lost'
       } on ${difficulty} difficulty.\nDuration: ${durationStr}\nDate: ${dateStr}\n${streakStr}`,
     });
@@ -63,7 +68,7 @@ app.post('/api/games', async (request, response) => {
     emailSent = true;
     console.log(`Email sent: ${email}`);
   } catch (err) {
-    console.error('Email failed:', err);
+    console.error('Email sending failed:', err);
   }
 
   response.send({ id, timestamp: new Date().toISOString(), emailSent });
