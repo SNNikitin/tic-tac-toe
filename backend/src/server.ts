@@ -40,9 +40,6 @@ app.post('/api/games', async (request, response) => {
     return response.status(400).send('Invalid email');
   }
 
-  const id = Date.now().toString();
-  let emailSent = false;
-
   const durationStr = Number(duration) > 0 ? `${Math.round(duration / 1000)}s` : '';
   const streakStr = streak ? `Current streak: ${streak} wins` : '';
   const parsedDate = playedAt ? new Date(playedAt) : null;
@@ -65,13 +62,12 @@ app.post('/api/games', async (request, response) => {
       } on ${difficulty} difficulty.\nDuration: ${durationStr}\nDate: ${dateStr}\n${streakStr}`,
     });
 
-    emailSent = true;
     console.log(`Email sent: ${email}`);
+    response.send({});
   } catch (err) {
     console.error('Email sending failed:', err);
+    response.status(500).send('Email sending failed');
   }
-
-  response.send({ id, timestamp: new Date().toISOString(), emailSent });
 });
 
 app.listen(3000, '0.0.0.0', () => {
