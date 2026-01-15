@@ -1,0 +1,16 @@
+{
+  "name": "tictactoe-native",
+  "version": "1.0.0",
+  "main": "rn/src/index.ts",
+  "types": "rn/src/index.ts",
+  "codegenConfig": {
+    "name": "TicTacToeNativeSpec",
+    "type": "modules",
+    "jsSrcsDir": "rn/src",
+    "ios": {
+      "modulesConformingToProtocol": {
+        "RCTTurboModule": ["NativeGame", "NativeDatabase", "NativeNetwork"]
+      }
+    }
+  }
+}
