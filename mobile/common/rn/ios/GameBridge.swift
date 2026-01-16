@@ -1,5 +1,4 @@
 import Foundation
-import GameLogic
 
 @objcMembers
 public class GameBridge: NSObject {

@@ -2,14 +2,15 @@ import type { TurboModule } from 'react-native'
 import { TurboModuleRegistry } from 'react-native'
 
 export type Difficulty = 'easy' | 'medium' | 'hard'
+export type GameResult = 'win' | 'lose' | 'draw'
 
 export type GameState = {
   board: number[]
-  isHumanTurn: boolean
   difficulty: Difficulty
-  winningLine?: { row: number; col: number }[]
   duration: number
-  humanWon: boolean
+  isGameOver: boolean
+  result?: GameResult
+  winningLine?: { row: number; col: number }[]
 }
 
 export interface Spec extends TurboModule {

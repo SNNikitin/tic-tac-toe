@@ -2,7 +2,7 @@ import NativeGameModule from './NativeGame'
 import NativeDatabaseModule from './NativeDatabase'
 import NativeNetworkModule from './NativeNetwork'
 
-export type { GameState, Difficulty } from './NativeGame'
+export type { GameState, Difficulty, GameResult } from './NativeGame'
 export type { LeaderboardEntry } from './NativeDatabase'
 
 const notSupported = () => Promise.reject(new Error('Not supported on this platform'))

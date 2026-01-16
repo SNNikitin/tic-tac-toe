@@ -1,5 +1,4 @@
 import Foundation
-import Database
 
 @objcMembers
 public class DatabaseBridge: NSObject, @unchecked Sendable {
@@ -63,7 +62,7 @@ public class DatabaseBridge: NSObject, @unchecked Sendable {
                 return
             }
             let entries = await db.getLeaderboard().map {
-                ["name": $0.name, "bestStreak": $0.bestStreak, "streakDuration": $0.streakDuration, "total": $0.total, "wins": $0.wins]
+                ["playerId": $0.playerId, "name": $0.name, "bestStreak": $0.bestStreak, "streakDuration": $0.streakDuration, "total": $0.total, "wins": $0.wins]
             }
             queue.async { resolve(["leaderboard": entries]) }
         }

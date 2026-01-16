@@ -111,8 +111,8 @@ public actor GameDatabase {
         return result
     }
 
-    public func getLeaderboard() -> [(name: String, bestStreak: Int, streakDuration: Int, total: Int, wins: Int)] {
-        var entries = [(name: String, bestStreak: Int, streakDuration: Int, total: Int, wins: Int)]()
+    public func getLeaderboard() -> [(playerId: UInt, name: String, bestStreak: Int, streakDuration: Int, total: Int, wins: Int)] {
+        var entries = [(playerId: UInt, name: String, bestStreak: Int, streakDuration: Int, total: Int, wins: Int)]()
         fetch("""
             WITH numbered AS (
                 SELECT player_id, won, played_at, duration,
@@ -134,7 +134,8 @@ public actor GameDatabase {
                        ROW_NUMBER() OVER (PARTITION BY player_id ORDER BY len DESC) as rn
                 FROM streaks
             )
-            SELECT p.name,
+            SELECT p.id,
+                   p.name,
                    COALESCE(b.len, 0),
                    COALESCE(CAST((julianday(b.last_win_at) - julianday(b.started)) * 86400 + b.last_duration / 1000 AS INTEGER), 0),
                    (SELECT COUNT(*) FROM games WHERE player_id = p.id),
@@ -142,14 +143,15 @@ public actor GameDatabase {
             FROM players p
             LEFT JOIN best b ON b.player_id = p.id AND b.rn = 1
             WHERE EXISTS (SELECT 1 FROM games WHERE player_id = p.id)
-            ORDER BY 2 DESC, 5 DESC
+            ORDER BY 3 DESC, 6 DESC
         """) { statement in
             entries.append((
-                name: self.columnText(statement, 0),
-                bestStreak: Int(sqlite3_column_int(statement, 1)),
-                streakDuration: Int(sqlite3_column_int(statement, 2)),
-                total: Int(sqlite3_column_int(statement, 3)),
-                wins: Int(sqlite3_column_int(statement, 4))
+                playerId: UInt(sqlite3_column_int64(statement, 0)),
+                name: self.columnText(statement, 1),
+                bestStreak: Int(sqlite3_column_int(statement, 2)),
+                streakDuration: Int(sqlite3_column_int(statement, 3)),
+                total: Int(sqlite3_column_int(statement, 4)),
+                wins: Int(sqlite3_column_int(statement, 5))
             ))
         }
         return entries

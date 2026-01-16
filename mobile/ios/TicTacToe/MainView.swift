@@ -4,26 +4,6 @@ import Database
 import Network
 
 private nonisolated(unsafe) let isoFormatter = ISO8601DateFormatter()
-private let dateFormatter: DateFormatter = {
-    let f = DateFormatter()
-    f.dateFormat = "dd.MM.yyyy"
-    return f
-}()
-
-struct BestStreakInfo {
-    let count: Int
-    let startDate: String
-    let endDate: String
-
-    var formatted: String {
-        "\(count) wins (\(formatDate(startDate)) - \(formatDate(endDate)))"
-    }
-
-    private func formatDate(_ iso: String) -> String {
-        guard let date = isoFormatter.date(from: iso) else { return iso }
-        return dateFormatter.string(from: date)
-    }
-}
 
 enum Modal: Identifiable {
     case name
@@ -41,7 +21,6 @@ enum Modal: Identifiable {
 
 struct MainView: View {
     @StateObject private var game = Game()
-    @State private var bestStreak: BestStreakInfo?
     @State private var modal: Modal?
 
     private let db = GameDatabase.open()
@@ -126,9 +105,9 @@ struct MainView: View {
                     onSubmit: { email in
                         Task {
                             modal = nil
-                            
+
                             let err = await sendToServer(email: email, name: name, streak: streak)
-                            
+
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                                 if let err {
                                     modal = .result(title: "Error", message: err)
@@ -137,17 +116,15 @@ struct MainView: View {
                                 }
                             }
                         }
-                    }
+                    },
+                    onCancel: resetGame
                 )
                 .presentationDetents([.height(190)])
 
             case .result(let title, let message):
                 AlertModalView(title: title, message: message) {
                     modal = nil
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        resetGame()
-                    }
+                    resetGame()
                 }
                 .presentationDetents([.height(160)])
             }
@@ -166,16 +143,11 @@ struct MainView: View {
         )
 
         let streak = await db!.getCurrentStreak(for: playerId)
-        if let best = await db!.getBestStreak(for: playerId), best.count > 0 {
-            bestStreak = BestStreakInfo(count: best.count, startDate: best.startDate, endDate: best.endDate)
-        }
-
         return streak
     }
 
     private func resetGame() {
         game.newGame()
-        bestStreak = nil
     }
 
     private func sendToServer(email: String, name: String, streak: Int) async -> String? {
@@ -296,6 +268,8 @@ struct AlertModalView: View {
     let message: String
     let onDismiss: () -> Void
 
+    @Environment(\.dismiss) private var dismiss
+
     var body: some View {
         VStack(spacing: 0) {
             Text(title)
@@ -311,7 +285,7 @@ struct AlertModalView: View {
                 .padding(.horizontal, 16)
                 .padding(.bottom, 24)
 
-            Button("OK") { onDismiss() }
+            Button("OK") { dismiss(); onDismiss() }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
             .background(Color.accent)

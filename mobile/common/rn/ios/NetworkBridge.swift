@@ -1,5 +1,4 @@
 import Foundation
-import Network
 
 private actor NetworkHolder {
     private var client: NetworkClient?

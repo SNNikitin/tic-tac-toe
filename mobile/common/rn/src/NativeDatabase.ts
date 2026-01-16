@@ -2,6 +2,7 @@ import type { TurboModule } from 'react-native'
 import { TurboModuleRegistry } from 'react-native'
 
 export type LeaderboardEntry = {
+  playerId: number
   name: string
   bestStreak: number
   streakDuration: number
