@@ -14,7 +14,8 @@
 # Dependencies
 node_modules/
 **/Pods/
-/vendor/bundle/
+**/vendor/bundle/
+.bundle/
 
 # Build
 dist/
