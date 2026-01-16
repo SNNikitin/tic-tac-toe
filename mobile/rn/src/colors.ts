@@ -1,0 +1,15 @@
+export const colors = {
+  accent: '#007AFF',
+  danger: '#FF3B30',
+  success: '#34C759',
+  warning: '#FF9500',
+  grid: '#333333',
+  white: '#FFFFFF',
+  separator: '#EEEEEE',
+  secondaryText: '#666666',
+  disabled: '#CCCCCC',
+  winningCell: '#D4EDDA',
+  inputBorder: '#DDDDDD',
+  overlay: 'rgba(0, 0, 0, 0.5)',
+  overlayLight: 'rgba(255, 255, 255, 0.85)',
+};
